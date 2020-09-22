@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<!-- Jeu "Slide Puzzle" - Thibault Beleguic - Cours de JS 2020-2021 - LPI-WS 2 -->
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta charset="utf-8"/>
+	<title> Slide puzzle </title>
+	<link rel="stylesheet" type="text/css" href="reset.css"/>
+</head>
+<body>
+	<div id="divMain">
+		<!-- texte exerce + nbr de deplacement version telephone -->
+		<div id="devTelephone">
+			<h1> Exercice 2 : Jeu "Slide Puzzle" </h1>
+			<!-- Nombre de deplacement avec dans le span la valeur qui changeras -->
+			<p><span id="deplacementTel">Nombre de déplacement : 0 </span><span id="winTiretTel"></span><span id="winTel"></span></p>
+			<!-- Creation du tableau 4x4 pour le jeux -->
+			<!-- Chaque case dispose d'un nombre de 1 a 16, le nombre correspond au numeros de la case -->
+			<!-- Si une case est appuyer, elle execute la fonction changeCase avec comme parametre le numeros de la case-->
+		</div>
+		<div id="divTable">
+			<table>
+				<tr>
+					<td onclick="changeCase(1);"></td>
+					<td onclick="changeCase(2);"></td>
+					<td onclick="changeCase(3);"></td>
+					<td onclick="changeCase(4);"></td>
+				</tr>
+				<tr>
+					<td onclick="changeCase(5);"></td>
+					<td onclick="changeCase(6);"></td>
+					<td onclick="changeCase(7);"></td>
+					<td onclick="changeCase(8);"></td>
+				</tr>
+				<tr>
+					<td onclick="changeCase(9);"></td>
+					<td onclick="changeCase(10);"></td>
+					<td onclick="changeCase(11);"></td>
+					<td onclick="changeCase(12);"></td>
+				</tr>
+				<tr>
+					<td onclick="changeCase(13);"></td>
+					<td onclick="changeCase(14);"></td>
+					<td onclick="changeCase(15);"></td>
+					<td onclick="changeCase(16);"></td>
+				</tr>
+			</table>
+		</div>
+		<div id="divBouton">
+			<!-- texte exerce + nbr de deplacement version ordinateur -->
+			<div id="devOrdi">
+				<h1> Exercice 2 : Jeu "Slide Puzzle" </h1>
+				<!-- Nombre de deplacement avec dans le span la valeur qui changeras -->
+				<p><span id="deplacementOrdi">Nombre de déplacement : 0 </span><span id="winTiretOrdi"></span><span id="winOrdi"></span></p>
+			</div>
+			<div id="divSpace">
+				<!-- Bouton pour recomencer une partie, ou pour melanger l'image-->
+				<button onclick="reset();"> Melanger le jeux / Recommencer </button>
+				<!-- Bouton d'acces a l'exercice 1 "memory" -->
+				<button id="nextExoA" onclick="window.location.href='http://thibault-beleguic.yo.fr/JS/Exo1/'">Exercice  1 : Memory</button> 
+			</div>
+		</div>
+	</div>
+	<footer>
+		
+		<p> Thibault Béléguic - LPI-WS </p>
+
+	</footer>
+
+	<script type="text/javascript">
+
+		// declare la valeur qui va contenir la casse vide, varibale Globale
+		var emptyCase; 
+		// declaire le nombre de deplacement, par default = 0, variable Globale
+		var nbrDep = 0; 
+		// on recupere grace a la methode "TagName" tous les element avec le tag "td", ce qui correspond ici a toute les cases, varibale Globale
+		var case0 = document.getElementsByTagName('td'); 
+		// Lance la fonction d'initialisation du jeux
+		main();
+		//Fonction "changeCase" activé quand on clique sur une case, elle prend en parametre/argument le numeros de la casse
+		function changeCase(nbr) {
+
+			// La fonction getDep recupere les case adjacente a la case vide, elle determine les case valide au echange de case.
+			// fonction non utilisé car la consigne etait que toute les cases puissent s'echanger avec la case vide.
+			// pour activer la fonction, il suffit d'enlever les commentaire des lignes 85,86,87,88,89,90,91,92,93,94
+			var dep = getDep(emptyCase); 
+			var temoin = false;
+
+			dep.forEach(function(element){
+				if(nbr == element){
+					temoin = true;
+				}
+			});
+
+			if (temoin && nbr != emptyCase) {
+			
+				//declare la case choisir par le joueur
+				var case1 = case0[nbr-1];
+				//decalre la case vide
+				var case2 = case0[emptyCase-1];
+				//declaire la variable temporaire qui va servir pour l'echange
+				var temp = "";
+
+				//temp prend la valeur de la case1
+				temp = case1.innerHTML;
+				//case1 prend une valeur vide (correspond a la case vide)
+				case1.innerHTML = "<img src='./img_exo/empty.png'/>";
+				// case1 prend le style de la case vide
+				case1.classList.add("empty");
+				//case2 prend la valeur de temp
+				case2.innerHTML = temp; 
+				//case2 se fait retirer le style de la case vide pour devenir une case pleine
+				case2.classList.remove("empty");
+				//nombre de deplacement + 1 
+				nbrDep += 1;
+				console.log(nbrDep);
+				//on recupere le texte du nombre de deplacement
+				var textOrdi = document.getElementById("deplacementOrdi");
+				var textTel = document.getElementById("deplacementTel");  
+				//text prend la valeur du nombre de deplacement
+				if (nbrDep == 1) {
+					textTel.innerHTML = "Nombre de deplacement : "+nbrDep;
+					textOrdi.innerHTML = "Nombre de deplacement : "+nbrDep;
+				}
+				else{
+					textTel.innerHTML = "Nombre de deplacements : "+nbrDep;
+					textOrdi.innerHTML = "Nombre de deplacements : "+nbrDep;
+				}
+				// la case vide prend la valeur du nombre passer en parametre (aussi egale a case1)
+				emptyCase = nbr;
+				var iswin = checkWin(case0);
+				if (iswin == true) {
+					isWin();
+				}
+			}
+
+		}
+
+		//fonction pour determiner les cases autorisé a bouger, les cases qui peuvent bouger sont celle qui touche la cases vide
+		//Fonctionalité non active actuellement
+		function getDep(nbr){
+			// on recupere le numeros de la case, puis on determine le numeros des cases adjacente a la case vide (bas, gauche, droite, haut)
+			var table=[];
+			var long = 4;
+			var gauche;
+			var droite;
+			var haut;
+			var bas;
+
+			gauche = nbr - 1;
+			droite = nbr + 1;
+			haut = nbr - long;
+			bas = nbr + long;
+
+			if(gauche >= 1 && gauche <= 16 && nbr%4 != 1){
+				table.push(gauche);
+			}
+			if(droite >= 1 && droite <= 16 && nbr%4 != 0){
+				table.push(droite);
+			}
+			if(haut >= 1 && haut <= 16){
+				table.push(haut);
+			}
+			if(bas >= 1 && bas <= 16){
+				table.push(bas);
+			}
+
+			return table;
+
+		}
+		//fonction tableau aleatoire
+		function arrayAlea(){
+			//declare un tableau composé de 15 chiffre
+			let table = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15];
+			//On passe le tableau dans la fonction "shuffleé" pour le melanger
+			table = shuffle(table);
+			//On retourne le tableau melangé
+			return table;
+
+		}
+		//fonction pour melanger un tableau
+		function shuffle(table){
+			//On melange le tableau autant de fois que le nombre d'element dans le tableau
+			for (var i = 0; i <= 14; i++) {
+				nbr = getNbrAlea(0,13);
+				var temp = table[i];
+				table[i] = table[nbr];
+				table[nbr] = temp;
+
+			}
+
+			return table;
+
+		}
+		//fonction qui renvoie un nombre aleatoire entre un minimum et un maximum
+		function getNbrAlea(min,max){
+
+			min = Math.ceil(min);
+		    max = Math.floor(max);
+		    nbr = Math.floor(Math.random() * (max - min +1)) + min;
+
+		    return nbr;
+		
+		}
+
+		//fonction qui ajoute les images au tableau de jeux
+		function generateTable(table,nbr){
+
+			for (var i = 0; i <= 15; i++) {
+				if (i == nbr - 1) {
+					case0[nbr-1].innerHTML = "<img src='./img_exo/empty.png'/>";
+					case0[nbr-1].classList.add("empty");
+				}
+				else if(i <= nbr - 1){
+					case0[i].innerHTML = "<img src='./img_exo/"+table[i]+".jpg'/>";
+				}
+				else{
+					case0[i].innerHTML = "<img src='./img_exo/"+table[i-1]+".jpg'/>";
+				}
+			}
+		}
+		//fonction qui initialise le tableau de jeux
+		function main(){
+
+			var table = arrayAlea();
+			var nbr = getNbrAlea(1,15);
+			generateTable(table,nbr);
+			emptyCase = nbr;
+
+		}
+
+		// fonction qui redemarre le jeux (reset), remet tous a 0
+		function reset(){
+
+			var case2 = case0[emptyCase-1];
+			case2.classList.remove("empty");
+			nbrDep = 0;
+			var textOrdi = document.getElementById("deplacementOrdi"); 
+			var textTel = document.getElementById("deplacementTel"); 
+			textOrdi.innerHTML = "Nombre de déplacement : "+nbrDep;
+			textTel.innerHTML = "Nombre de déplacement : "+nbrDep;
+			var winTxtTel = document.getElementById("winTel");
+			var tiretTel = document.getElementById("winTiretTel");
+			winTxtTel.innerHTML = "";
+			tiretTel.innerHTML = "";
+			var winTxtOrdi = document.getElementById("winOrdi");
+			var tiretOrdi = document.getElementById("winTiretOrdi");
+			winTxtOrdi.innerHTML = "";
+			tiretOrdi.innerHTML = "";
+			main();
+
+
+		}
+
+		// fonction qui regarde si l'image sur le tableau de jeux est bien reconstitué.
+		function checkWin(){
+			console.log("checkWin");
+			var win = ["/1","/2","/3","/4","/5","/6","/7","/8","/9","10","11","12","13","14","15"];
+			var temoinWin = true;
+			var case0 = document.getElementsByTagName('td'); 
+			for (var i = 0; i <= 14; i++) {
+				var proc = case0[i].innerHTML.substr(-8,2);
+				if(proc != win[i]){
+					temoinWin = false;
+				}
+			}
+			if (temoinWin == true) {
+				return true;
+			}
+			else{
+				return false;
+			}
+		}
+
+		// fonction qui ecrit au dessus du tableau de jeux "vous avez gagné" quand l'image a ete reconstitué
+		function isWin(){
+
+			var winTxtTel = document.getElementById("winTel");
+			var tiretTel = document.getElementById("winTiretTel");
+			winTxtTel.innerHTML = "Vous avez Gagné !";
+			tiretTel.innerHTML = " - ";
+			var winTxtOrdi = document.getElementById("winOrdi");
+			var tiretOrdi = document.getElementById("winTiretOrdi");
+			winTxtOrdi.innerHTML = "Vous avez Gagné !";
+			tiretOrdi.innerHTML = " - ";
+
+		}
+
+
+	</script>
+
+	<style type="text/css">
+		/*CSS Responsive - Thibault Béléguic */
+				@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap%27%27');
+
+		#divSpace{
+
+			margin-top: 50px;
+			display: flex;
+			flex-direction: column; 
+			width: 100%;
+
+		}
+
+		#divMain{
+
+			display: flex;
+			width: 95%;
+			justify-content: space-around;
+
+		}
+
+		#divBouton{
+
+			display: flex;
+			flex-direction: column;
+			justify-content: space-around;
+			margin-top: 25px;
+			margin-bottom: 10px;
+			width: 40%;
+
+		}
+
+		#winTel, #winOrdi{
+
+			color: green;
+		}
+
+		.empty{
+
+			border: none;
+			cursor: not-allowed;
+			line-height: 0;
+		
+		}
+
+		body{
+
+			height:100vh;
+			display: flex;
+			flex-direction: column;
+			margin: 0;
+			background-image: url("./assets/image0.jpg"); /* The image used */
+  			background-color: #ffffff; /* Used if the image is unavailable */
+
+		}
+
+		h1{
+
+			text-align: center;
+			font-size: 280%;
+			margin: 20px;
+			font-family: 'Poppins', sans-serif;
+			color: black;
+
+
+		}
+
+		img{
+
+			padding: 0px; 
+			margin: 0px; 
+			border: none;
+			width: 200px;
+			line-height: 0;
+
+		}
+
+		button{
+
+			margin: auto;
+			border-radius: 100px;
+			width: 70%;
+			padding: 25px;
+			text-decoration: none;
+			color: black;
+			background: rgba(0, 0, 0, 0);
+			border: solid;
+			border-color: black;
+			font-size: 150%;
+			font-family: 'Poppins', sans-serif;
+			margin-bottom: 20px;
+			margin-top: 10px;
+
+
+
+		}
+
+		button:hover{
+
+			cursor: pointer;
+			background-color: black;
+			color: white;
+
+		}
+
+		p{
+
+			text-align: center;
+			font-size: 180%;
+			margin: 10px;
+			font-family: 'Poppins', sans-serif;
+
+
+		}
+
+		td{
+
+			padding: 0px; 
+			margin: 0px; 
+			border: none;
+			cursor: pointer;	
+			line-height:0;
+
+		}
+
+		tr{
+
+			padding: 0px; 
+			margin: 0px; 
+			border: none;
+			line-height:0;
+
+		}
+
+		div{
+
+			margin: auto;
+			text-align: center;
+			justify-content: center;
+			align-items: center;
+			vertical-align: middle;
+
+		}
+
+		table{
+
+			margin: auto;
+			border: solid;
+			border-collapse: collapse;
+			line-height:0;
+		}
+
+
+		.retourner{
+
+			border: none;
+			cursor: not-allowed;
+		
+		}
+
+		#devOrdi{
+
+			display: block;
+
+		}
+
+		#devTelephone{
+
+			display: none;
+
+
+		}
+
+		@media screen and (max-width: 1450px){
+
+			h1{
+
+				font-size: 350%;
+
+			}
+
+			p{
+
+				font-size: 275%;
+
+			}
+
+			#divMain{
+
+				display: flex;
+				flex-direction: column;
+				margin-right: 5%;
+				margin-left: 5%;
+				width: 90%;
+
+			}
+
+
+			#divTable{
+
+				display: block;
+				width: 100%;
+
+			}
+
+			table {
+			    width: 100%;
+			}
+
+			img{
+
+				width: 100%;
+
+			}
+
+			td{
+
+				width: 20%;
+
+
+			}
+
+			tr{
+
+
+				width: 100%;
+
+			}
+
+			button{
+
+				padding: 4%;
+				width: 75%;
+				font-size: 220%;
+				margin: 0;
+				margin-top: 4%;
+
+
+			}
+
+
+			#divBouton{
+
+				width: 100%;
+				margin-top: 0;
+
+
+
+			}
+
+			#divSpace{
+
+				margin: 0;
+				width: 100%;
+
+			}
+
+			#devOrdi{
+
+				display: none;
+
+			}
+
+			#devTelephone{
+
+				display: block;
+				width: 100%;
+
+			}
+
+			footer p{
+
+				font-size: 210%;
+
+			}
+		}
+
+		@media screen and (max-width: 1024px){
+
+			h1{
+
+				font-size: 250%;
+
+			}
+
+			p{
+
+				font-size: 200%;
+
+			}
+
+			#divMain{
+
+				display: flex;
+				flex-direction: column;
+				margin-right: 5%;
+				margin-left: 5%;
+				width: 90%;
+
+			}
+
+
+			#divTable{
+
+				display: block;
+				width: 100%;
+
+			}
+
+			table {
+			    width: 100%;
+			}
+
+			img{
+
+				width: 100%;
+
+			}
+
+			td{
+
+				width: 20%;
+
+
+			}
+
+			tr{
+
+
+				width: 100%;
+
+			}
+
+			button{
+
+				padding: 4%;
+				width: 75%;
+				font-size: 150%;
+				margin: 0;
+				margin-top: 4%;
+
+
+			}
+
+
+			#divBouton{
+
+				width: 100%;
+				margin-top: 0;
+
+			}
+
+			#divSpace{
+
+				margin: 0;
+				width: 100%;
+
+			}
+
+			#devOrdi{
+
+				display: none;
+
+			}
+
+			#devTelephone{
+
+				display: block;
+				width: 100%;
+
+			}
+
+			footer p{
+
+				font-size: 160%;
+
+			}
+		}
+
+
+
+		@media screen and (max-width: 768px){
+
+			h1{
+
+				font-size: 200%;
+
+			}
+
+			p{
+
+				font-size: 150%;
+
+			}
+
+			#divMain{
+
+				display: flex;
+				flex-direction: column;
+				margin-right: 5%;
+				margin-left: 5%;
+				width: 90%;
+
+			}
+
+
+			#divTable{
+
+				display: block;
+				width: 100%;
+
+			}
+
+			table {
+			    width: 100%;
+			}
+
+			img{
+
+				width: 100%;
+
+			}
+
+			td{
+
+				width: 20%;
+
+
+			}
+
+			tr{
+
+
+				width: 100%;
+
+			}
+
+			button{
+
+				padding: 3%;
+				width: 75%;
+				font-size: 100%;
+				margin: 0;
+				margin-top: 10px;
+
+
+			}
+
+
+			#divBouton{
+
+				width: 100%;
+				margin-top: 0;
+
+
+
+			}
+
+			#divSpace{
+
+				margin: 0;
+				width: 100%;
+
+			}
+
+			#devOrdi{
+
+				display: none;
+
+			}
+
+			#devTelephone{
+
+				display: block;
+				width: 100%;
+
+			}
+
+			footer p{
+
+				font-size: 110%;
+
+			}
+
+		}
+
+		
+
+
+
+
+	</style>
+
+</body>
+</html>
