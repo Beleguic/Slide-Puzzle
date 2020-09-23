@@ -104,7 +104,7 @@
 				//temp prend la valeur de la case1
 				temp = case1.innerHTML;
 				//case1 prend une valeur vide (correspond a la case vide)
-				case1.innerHTML = "<img src='./img_exo/empty.png'/>";
+				case1.innerHTML = "<img src='./img_exo/empty.png' alt='Error'/>";
 				// case1 prend le style de la case vide
 				case1.classList.add("empty");
 				//case2 prend la valeur de temp
@@ -208,14 +208,14 @@
 
 			for (var i = 0; i <= 15; i++) {
 				if (i == nbr - 1) {
-					case0[nbr-1].innerHTML = "<img src='./img_exo/empty.png'/>";
+					case0[nbr-1].innerHTML = "<img src='./img_exo/empty.png' alt='Error'/>";
 					case0[nbr-1].classList.add("empty");
 				}
 				else if(i <= nbr - 1){
-					case0[i].innerHTML = "<img src='./img_exo/"+table[i]+".jpg'/>";
+					case0[i].innerHTML = "<img src='./img_exo/"+table[i]+".jpg' alt='Error'/>";
 				}
 				else{
-					case0[i].innerHTML = "<img src='./img_exo/"+table[i-1]+".jpg'/>";
+					case0[i].innerHTML = "<img src='./img_exo/"+table[i-1]+".jpg' alt='Error'/>";
 				}
 			}
 		}
